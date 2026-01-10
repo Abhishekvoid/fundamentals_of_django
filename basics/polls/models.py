@@ -10,16 +10,34 @@ Models is use to define your database layout and additional metadata
 """
 
 from django.db import models
+import uuid
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published")
 
+    def __str__(self):
+        return self.question_text
+
 class Choice(models.Model):
 
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
     choice_text = models.CharField(max_length=200)
     votes = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.choice_text
+
+class AppUser(models.Model):
+
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    username = models.CharField(max_length = 100)
+    email = models.EmailField(max_length=254, unique=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.user
+
 
 """
 - Each is represnted by a class that subclasses django.db.models.Model. Each model has a number of class variables, each of which represents a database field in the model
