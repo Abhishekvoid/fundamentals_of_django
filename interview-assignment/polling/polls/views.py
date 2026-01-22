@@ -2,18 +2,22 @@ from rest_framework.views import APIView
 from  rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from .models import Question, Choice, AppUser
+from .models import Question, Choices, AppUser, InvalidVoteError
 from .serializers import QuestionSerializer, ChoiceSerializer, AppUserSerializer
+import logging 
+logger = logging.getLogger(__name__)
 
 
 class QuestionListCreateAPIView(APIView):
 
     def get(self, request):
-        questions = Question.objects.all()
-        serializer = QuestionSerializer(questions, many=True)
+        questions  = Question.objects.all()
+        serializer  = QuestionSerializer(questions, many= True)
         return Response(serializer.data)
     
+
     def post(self, request):
+
         serializer = QuestionSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -22,33 +26,32 @@ class QuestionListCreateAPIView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class QuestionDetailAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-
-
 class ChoiceCreateAPiView(APIView):
 
     def get(self, request):
-        choices = Choice.objects.all()
+        choices = Choices.objects.all()
         
         serializer = ChoiceSerializer(choices, many=True)
         return Response(serializer.data)
     
     def get_queryset(self):
-          return Choice.objects.all()
+          return Choices.objects.all()
     
     def post(self, request):
-        serializer = ChoiceSerializer(data=request.data)
+        try:
 
-        if serializer.is_valid():
+            serializer = ChoiceSerializer(data=request.data)
+
+            serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-"""
-
-- most basic view you can build, to acces it in browser -> we need to map it to URL
-- There URl configurations are define in each django app, and they are file named urls.py
-
-"""
+            return Response(serializer.data, 201)
+        except InvalidVoteError as e:
+            logger.error(f"Vote error: {e}")
+            return Response({"error": str(e)}, 400)
+        except Exception as e:
+            logger.error(f"Unexpected: {e}")
+            return Response({"error": "Server error"}, 500)
+    
+class QuestionDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer

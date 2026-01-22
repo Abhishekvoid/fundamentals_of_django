@@ -3,9 +3,14 @@ from .models import Question, AppUser, Choice
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
+
+    question = serializers.PrimaryKeyRelatedField(
+        queryset=Question.objects.all()
+    )
+    
     class Meta:
         model = Choice
-        fields = ["id", "choice_text", "votes"]
+        fields = ["id", "question", "choice_text", "votes"]
 
 class QuestionSerializer(serializers.ModelSerializer):
 
