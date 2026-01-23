@@ -7,7 +7,7 @@ class AppUserSerializer(serializers.ModelSerializer):
         model: AppUser
         fields = ["username", "email", "is_active"]
     
-    def validate_email(seld, value):
+    def validate_email(self, value):
 
         if not value.endswith("@example.com"):
             raise serializers.ValidationError("Email must belong to @example.com")
