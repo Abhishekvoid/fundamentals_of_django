@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .models import AppUser, MenuItem, Order, VisitCount
 from .serializers import UserRegisterSerializer, MenuSerailizer, OrderSerializer
+import time
 import logging 
 logger = logging.getLogger(__name__)
 
@@ -70,3 +71,41 @@ class UserStatsView(APIView):
             })
         except AppUser.DoesNotExist:
             return Response({'error': 'user not found'}, 404)
+
+class RestaurantListView(APIView):
+
+    def get(self, request):
+
+        time.sleep(2)
+        data = [
+            {"name": "Pizza Palace", "rating": 4.5, "time": "30 mins"},
+            {"name": "Curry House", "rating": 4.8, "time": "45 mins"},
+            {"name": "Burger King", "rating": 4.2, "time": "25 mins"}
+        ]
+
+        return Response(data)
+
+class UserProfileView(APIView):
+    def get(self, request):
+
+        time.sleep(0.5)
+        data = {
+            "username": "Abhishek",
+            "email": "abhishek@example.com",
+            "orders_count": 52
+        }
+
+        return Response(data)
+
+class GoldStatusView(APIView):
+
+    def get(self, request):
+
+        time.sleep(3)
+        data = {
+            "is_gold": True,
+            "expiry": "2025-12-31",
+            "benefits": ["Free Delivery", "Priority Support"]
+        }
+
+        return Response(data)

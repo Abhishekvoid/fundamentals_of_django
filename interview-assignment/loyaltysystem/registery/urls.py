@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import UserRegisterSerializer, MenuView, OrderCreateAPIView, UserOrderAPIView, UserStatsView
+from .views import UserRegisterSerializer, MenuView, OrderCreateAPIView, UserOrderAPIView, UserStatsView, RestaurantListView, UserProfileView, GoldStatusView
 
 
 urlpatterns = [
@@ -12,5 +12,11 @@ urlpatterns = [
 
     path('user/<str:phone>/orders/', UserOrderAPIView.as_view(), name='user-orders'),
 
-    path('user/<str:phone>/stats/', UserStatsView.as_view(), name='user-stats')
+    path('user/<str:phone>/stats/', UserStatsView.as_view(), name='user-stats'),
+
+    path('api/restaurants/', RestaurantListView.as_view()),
+
+    path('api/profile/', UserProfileView.as_view()),
+
+    path('api/gold-status/', GoldStatusView.as_view()), 
 ]   
