@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import UserRegisterSerializer, MenuView, OrderCreateAPIView, UserOrderAPIView, UserStatsView, RestaurantListView, UserProfileView, GoldStatusView
+from .views import UserRegisterSerializer, MenuView, OrderCreateAPIView, UserOrderAPIView, UserStatsView, RestaurantListView, UserProfileView, GoldStatusView, UserVisitStatus
 
 
 urlpatterns = [
@@ -19,4 +19,6 @@ urlpatterns = [
     path('api/profile/', UserProfileView.as_view()),
 
     path('api/gold-status/', GoldStatusView.as_view()), 
+
+    path('api/user_status/', UserVisitStatus.as_view()),
 ]   

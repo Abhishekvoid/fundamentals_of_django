@@ -1,3 +1,5 @@
+from asgiref.sync import sync_to_async
+from django.db.models import Avg
 from rest_framework.views import APIView
 from  rest_framework.response import Response
 from rest_framework import status
@@ -5,6 +7,7 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .models import AppUser, MenuItem, Order, VisitCount
 from .serializers import UserRegisterSerializer, MenuSerailizer, OrderSerializer
 import time
+import asyncio
 import logging 
 logger = logging.getLogger(__name__)
 
@@ -74,9 +77,9 @@ class UserStatsView(APIView):
 
 class RestaurantListView(APIView):
 
-    def get(self, request):
+    async def get(self, request):
 
-        time.sleep(2)
+        await asyncio.sleep(2)
         data = [
             {"name": "Pizza Palace", "rating": 4.5, "time": "30 mins"},
             {"name": "Curry House", "rating": 4.8, "time": "45 mins"},
@@ -86,9 +89,10 @@ class RestaurantListView(APIView):
         return Response(data)
 
 class UserProfileView(APIView):
-    def get(self, request):
+    
+    async def get(self, request):
 
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         data = {
             "username": "Abhishek",
             "email": "abhishek@example.com",
@@ -99,9 +103,9 @@ class UserProfileView(APIView):
 
 class GoldStatusView(APIView):
 
-    def get(self, request):
+    async def get(self, request):
 
-        time.sleep(3)
+        await asyncio.sleep(3)
         data = {
             "is_gold": True,
             "expiry": "2025-12-31",
@@ -109,3 +113,29 @@ class GoldStatusView(APIView):
         }
 
         return Response(data)
+
+class UserVisitStatus(APIView):
+
+    async def get(self, request, phone):
+
+        try:
+            user = await sync_to_async(AppUser.objects.get)(
+                phone_number = phone
+            )
+            
+            visit = await sync_to_async(VisitCount.objects.get)(
+                user=user
+            )
+
+            avg_order = await sync_to_async(Order.objects.filter(user=user).aggregate)(avg=Avg("total_price"))
+       
+
+            return Response ( {
+
+                "username": user.username,
+                "visit_count": visit.visits,
+                "avg_order_value": avg_order['avg'] or 0
+            }, status=status.HTTP_202_ACCEPTED)
+
+        except AppUser.DoesNotExist:
+            return Response({"error": "user not found"}, status=404)
