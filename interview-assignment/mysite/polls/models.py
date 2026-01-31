@@ -21,7 +21,7 @@ class Restaurant(models.Model):
         return self.name
 
 
-class Visit(models.Model):
+class VisitCount(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     visited_at = models.DateTimeField(auto_now_add=True)
