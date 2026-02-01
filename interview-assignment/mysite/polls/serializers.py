@@ -1,10 +1,38 @@
 from rest_framework import serializers
 from .models import Customer, Order, Restaurant, VisitCount
-
+import secrets
 
 # -------------------------
 # Customer
 # -------------------------
+
+
+class CustomerRegisterSerializer(serializers.ModelSerializer):
+
+    phone_number = serializers.CharField()
+    name = serializers.CharField(required = False)
+
+    def validate_phone_numer(self, value):
+
+        if not str(value).startwith("+91"):
+            raise serializers.ValidationError("phone number must start with +91")
+        return value
+    
+    def create(self, validate_data):
+        phone = validate_data["phone_number"]
+        name = validate_data.get("name", "")
+
+        customer, created = Customer.objects.get_or_create(
+
+            phone_number= phone,
+            defaults={"name": name}
+        )
+
+        if not customer.auth_token:
+            customer.auth_token = secrets.token_hex(32)
+            customer.save()
+
+        return customer
 class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -19,6 +47,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 # -------------------------
 # Restaurant
+
 # -------------------------
 class RestaurantReadSerializer(serializers.ModelSerializer):
 
