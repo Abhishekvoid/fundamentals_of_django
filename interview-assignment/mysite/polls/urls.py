@@ -1,0 +1,1 @@
+from .views import CustomerRegisterView, CustomerListView, CreateOrderView, Res
